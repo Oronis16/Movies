@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { signIn, signOut, useSession } from "next-auth/client";
 
 const Title = styled.div`
   display: flex;
@@ -18,21 +19,84 @@ const Card = styled.div`
   align-items: center;
   color: lightcoral;
   border: 2px solid salmon;
-  margin: 15px 200px;
+  margin: 15px;
+  padding: 20px;
   font-size: larger;
   font-family: cursive;
   box-shadow: 10px 5px 5px lightgray;
 `;
 
+const SignIn = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Button = styled.button`
+  margin: 10px;
+`;
+
+const TextArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 100px;
+  width: 600px;
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const Text = styled.h1`
+  margin: 15px;
+  font-size: larger;
+  font-family: cursive;
+  color: lightcoral;
+`;
+
 export default function Home() {
+  const [session, loading] = useSession();
+
   return (
-    <div>
+    <Container>
+      <SignIn>
+        {!session && (
+          <>
+            Sign in to leave a message to me! <br />
+            <Button onClick={() => signIn("github")}>Sign in</Button>
+          </>
+        )}
+        {session && (
+          <>
+            Welcome {session.user.name} <br />
+            <Button onClick={signOut}>Sign out</Button>
+          </>
+        )}
+      </SignIn>
       <Title>Contact Me</Title>
       <Card>
         <h3>My name is Krisztina Andreyka</h3>
         <p>I am a junior fullstack developper</p>
         <p>email: andreyka.kriszti@gmail.com</p>
       </Card>
-    </div>
+      {session && (
+        <TextArea>
+          <Text>Leave a message to me!</Text>
+          <textarea
+            style={{ width: "100%" }}
+            rows="5"
+            placeholder="Text something..."
+          ></textarea>
+          <Button>Send</Button>
+        </TextArea>
+      )}
+    </Container>
   );
 }
