@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { signIn, signOut, useSession } from "next-auth/client";
+import { useEffect, useState } from "react";
+import { add, getAll } from "../src/localstorage";
 
 const Title = styled.div`
   display: flex;
@@ -61,8 +63,47 @@ const Text = styled.h1`
   color: lightcoral;
 `;
 
+const MsgBox = styled.span`
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+  margin-bottom: 40px;
+  width: 600px;
+  border: 1px salmon solid;
+  padding: 10px;
+`;
+
+const UserName = styled.div`
+  display: flex;
+  font-family: cursive;
+  color: lightcoral;
+`;
+
+const CurrDate = styled.p`
+  display: flex;
+  justify-content: flex-end;
+  flex-grow: 1;
+  align-items: flex-end;
+`;
+
 export default function Home() {
   const [session, loading] = useSession();
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState(getAll());
+
+  useEffect(() => {
+    add(messages);
+  }, [messages]);
+
+  const sendMessage = () => {
+    const date = new Date();
+    setMessages((prevState) => {
+      return [...prevState, { message, date: date.toLocaleString() }];
+    });
+    setMessage("");
+  };
+
+  console.log(messages);
 
   return (
     <Container>
@@ -90,11 +131,30 @@ export default function Home() {
         <TextArea>
           <Text>Leave a message to me!</Text>
           <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             style={{ width: "100%" }}
             rows="5"
             placeholder="Text something..."
           ></textarea>
-          <Button>Send</Button>
+          <Button onClick={sendMessage}>Send</Button>
+          <div>
+            {messages.length > 0 && (
+              <div>
+                {messages.map((msg, idx) => {
+                  return (
+                    <MsgBox key={idx}>
+                      <UserName>
+                        <h2>{session.user.name}</h2>
+                        <CurrDate>{msg.date}</CurrDate>
+                      </UserName>
+                      <p>{msg.message}</p>
+                    </MsgBox>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </TextArea>
       )}
     </Container>
