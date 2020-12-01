@@ -116,7 +116,7 @@ export default function Home() {
         )}
         {session && (
           <>
-            Welcome {session.user.name} <br />
+            Welcome on my page {session.user.name} <br />
             <Button onClick={signOut}>Sign out</Button>
           </>
         )}
